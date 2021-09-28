@@ -1,0 +1,45 @@
+server:
+  max-http-header-size: 8192
+  port: 9099
+logging:
+  level:
+    com:
+      tct: debug
+      tct.data.dao: debug
+    root: info
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    name: my-blog-datasource
+    url: jdbc:mysql://172.51.216.118:3306/assetsCatalogue?serverTimezone=GMT%2B8&useSSL=FALSE&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true
+    username: root
+    password: mysql
+mybatis-plus:
+  type-aliases-package: com.tct.data
+  mapper-locations: classpath*:mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+  global-config:
+    db-config:
+      table-prefix: tb_
+      ##update-strategy: ignored
+    banner: false
+
+task:
+  cron:
+    exp1: 0 0 2 * * ?
+    portal: 0 0 2 * * ?
+
+metadataUrl: http://172.51.216.106:49090/asset/searchTopicMeta/
+
+sso:
+  enable: false
+  jwtSecret: datatransfer-yyds
+  client:
+    name: assetsCatalogue
+    clientKey: 7gBZcbsC7kLIWCdELIl8nxcs
+    baseUrl: http://172.51.216.105:19096
+    tokenPath: /sso/auth/token
+    verifyPath: /sso/auth/verify?clientKey={clientKey}&accessToken={accessToken}
+    authUserByTokenPath: /sso/auth/authUserByToken?clientKey={clientKey}&accessToken={accessToken}

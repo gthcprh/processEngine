@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.BiPortalMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BiPortalMapper" type="com.tct.data.model.BiPortal">
+        <id column="id" property="id" />
+        <result column="assets_id" property="assetsId" />
+        <result column="assets_num" property="assetsNum" />
+        <result column="assets_name" property="assetsName" />
+        <result column="assets_alias" property="assetsAlias" />
+        <result column="first_parent" property="firstParent" />
+        <result column="second_parent" property="secondParent" />
+        <result column="third_parent" property="thirdParent" />
+        <result column="data_size" property="dataSize" />
+        <result column="visits" property="visits" />
+        <result column="update_cycle" property="updateCycle" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="extra" property="extra" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id,assets_id, assets_num, assets_name, assets_alias, first_parent, second_parent, third_parent,
+        data_size, visits, update_cycle, create_time, update_time, extra
+    </sql>
+    <delete id="deleteByAssetId">
+        delete from `bi_portal` where assets_id = #{assetId}
+    </delete>
+    <select id="getSum" resultType="java.util.Map">
+        select
+            COUNT(DISTINCT(tab2.second_parent)) as '数据来源',
+                SUM(tab2.`columns`) as '已接入文件',
+                SUM(tab2.tabl) as '已接入库表',
+                COUNT(DISTINCT(tab2.third_parent)) as '已接入主题',
+                SUM(tab2.data_size) as '数据大小', SUM(tab2.visits) as '累计访问'
+        from(select
+                 CASE second_parent WHEN 'TDA' THEN 0 ELSE 1 END as tabl,
+                 tab1.*
+             from `bi_portal` tab1) tab2
+    </select>
+    <select id="getSystemSum" resultType="java.util.LinkedHashMap">
+        select  SUM(tab2.tabl) as '库表数量',
+                SUM(tab2.`columns`) as '文件数量',
+                SUM(tab2.data_size) as '资源占用',
+                SUM(tab2.visits) as '访问次数',
+                tab2.second_parent as '数据来源'
+        from(select
+                 CASE second_parent WHEN 'TDA' THEN 0 ELSE 1 END as tabl,
+                 tab1.*
+             from `bi_portal` tab1) tab2
+        WHERE tab2.second_parent != 'TDA'
+        GROUP BY tab2.second_parent
+    </select>
+    <select id="getTopicSum" resultType="java.util.LinkedHashMap">
+        select  SUM(tab2.tabl) as '库表数量',
+                SUM(tab2.`columns`) as '文件数量',
+                SUM(tab2.data_size) as '资源占用',
+                SUM(tab2.visits) as '访问次数',
+                tab2.third_parent as '数据来源',
+                tab2.assets_alias as '分类'
+        from(select
+                 CASE second_parent WHEN 'TDA' THEN 0 ELSE 1 END as tabl,
+                 tab1.*
+             from `bi_portal` tab1) tab2
+        WHERE tab2.second_parent = 'TDA'
+        GROUP BY tab2.third_parent,tab2.assets_alias
+        order by SUM(tab2.data_size) desc
+    </select>
+    <select id="getTopicInfo" resultType="java.util.Map">
+        select third_parent,count(1) as count
+        from bi_portal
+        <if test="type!=null" >
+            WHERE first_parent = #{type, jdbcType = VARCHAR}
+        </if>
+        GROUP BY third_parent ORDER BY COUNT(1) DESC LIMIT 10
+    </select>
+    <select id="getVisitCount" resultType="java.util.Map">
+        select tab3.third_parent, tab3.visitCount
+        from (
+            select
+            tab2.third_parent,
+            SUM(tab2.visit0) as visitCount
+            from(select
+            CASE visits WHEN '0' THEN 1 WHEN 'null' THEN 1 ELSE 0 END as visit0,
+            tab1.*
+            from `bi_portal` tab1) tab2
+            <if test="type!=null" >
+                WHERE first_parent = #{type, jdbcType = VARCHAR}
+            </if>
+            GROUP BY tab2.third_parent
+        ) tab3 where tab3.visitCount != 0
+    </select>
+    <select id="getVisitSum" resultType="java.util.Map">
+        select  tab2.data_type, tab2.third_parent,
+                SUM(tab2.visit1) as '访问数量'
+        from(select
+                 CASE first_parent WHEN '安全生产网' THEN '库表' ELSE '文件' END as data_type,
+                 CASE visits WHEN '0' THEN 1 WHEN 'null' THEN 1 ELSE 0 END as visit0,
+                 CASE visits WHEN '0' THEN 0 WHEN 'null' THEN 0 ELSE visits END as visit1,
+                 tab1.*
+             from `bi_portal` tab1) tab2
+        <if test="type!=null" >
+            WHERE first_parent = #{type, jdbcType = VARCHAR}
+        </if>
+        GROUP BY tab2.data_type, tab2.third_parent
+        ORDER BY SUM(tab2.visit1) DESC LIMIT 10
+    </select>
+    <select id="getDataInfo" resultType="java.util.Map">
+        select third_parent,SUM(data_size) as data_sum
+        from bi_portal
+        <if test="type!=null" >
+            WHERE first_parent = #{type, jdbcType = VARCHAR}
+        </if>
+        GROUP BY third_parent ORDER BY SUM(data_size) DESC LIMIT 10
+    </select>
+    <select id="getSystemDetails" resultType="java.util.LinkedHashMap">
+        SELECT assets_name, assets_alias, data_size, visits, update_cycle
+        FROM bi_portal
+        <if test="type!=null" >
+            WHERE second_parent = #{type, jdbcType = VARCHAR}
+        </if>
+    </select>
+    <select id="selelctRealData" resultType="com.tct.data.model.BiPortal">
+        select asset.id assets_id,
+            assets_num,assets_name,assets_alias,
+            view_num visits,data_count `columns`,data_size,update_cycle
+        from assets_info asset
+        LEFT JOIN resource_info resource ON asset.id = resource.assets_id
+        LEFT JOIN assets_detail detail ON asset.id = detail.assets_id
+        where asset.status = 1
+        <if test="assetId!=null">
+            and asset.id = #{assetId, jdbcType = INTEGER}
+        </if>
+    </select>
+    <select id="selectByAssetId" resultType="com.tct.data.model.BiPortal">
+        select * from bi_portal where assets_id = #{assetId, jdbcType = INTEGER}
+    </select>
+    <update id="truncateTable">
+        truncate table bi_portal
+    </update>
+
+</mapper>

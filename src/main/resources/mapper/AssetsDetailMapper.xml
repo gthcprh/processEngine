@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.AssetsDetailMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.AssetsDetail">
+        <id column="id" property="id" />
+        <result column="assets_info_id" property="assetsInfoId" />
+        <result column="assets_area" property="assetsArea" />
+        <result column="update_cycle" property="updateCycle" />
+        <result column="shared_property" property="sharedProperty" />
+        <result column="shared_way" property="sharedWay" />
+        <result column="resource_description" property="resourceDescription" />
+        <result column="relate_business_scene" property="relateBusinessScene" />
+        <result column="source_business_scene" property="sourceBusinessScene" />
+        <result column="relate_system" property="relateSystem" />
+        <result column="relate_info" property="relateInfo" />
+        <result column="reference_standard" property="referenceStandard" />
+        <result column="assets_source" property="assetsSource" />
+        <result column="assets_creator" property="assetsCreator" />
+        <result column="is_out_sensitive" property="isOutSensitive" />
+        <result column="increment_field" property="incrementField" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, assets_info_id, assets_area, update_cycle, shared_property, shared_way, resource_description, relate_business_scene, source_business_scene, relate_system, relate_info, reference_standard, assets_source, assets_creator, is_out_sensitive, increment_field, create_time, update_time
+    </sql>
+
+    <delete id="deleteByAssetsId" >
+        delete from assets_detail where assets_id=#{assetsId, jdbcType = INTEGER}
+    </delete>
+    <select id="selectByAssetsId" resultType="com.tct.data.model.AssetsDetail">
+        select * from assets_detail where assets_id=#{assetsId, jdbcType = INTEGER}
+    </select>
+</mapper>

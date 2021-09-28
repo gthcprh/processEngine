@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.ResourceInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.ResourceInfo">
+        <id column="id" property="id" />
+        <result column="assets_id" property="assetsId" />
+        <result column="data" property="data" />
+        <result column="data_count" property="dataCount" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, assets_info_id, data, data_count
+    </sql>
+    <select id="selectByAssetsId" resultType="com.tct.data.model.ResourceInfo">
+        select * from resource_info where assets_id=#{assetsId, jdbcType = INTEGER}
+    </select>
+</mapper>

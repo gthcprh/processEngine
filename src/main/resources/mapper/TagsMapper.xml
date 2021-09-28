@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.TagsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.Tags">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="parent_id" property="parentId" />
+        <result column="description" property="description" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="extra" property="extra" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, parent_id, description, create_time, update_time, extra
+    </sql>
+
+    <select id="getDataByPIdAndType" resultType="com.tct.data.model.TreeVo">
+        select * from tags where parent_id=#{parentId}
+        <if test="type!=null">
+            and type=#{type}
+        </if>
+    </select>
+
+    <select id="getAllData" resultType="com.tct.data.model.TreeVo">
+        select id ,name,parent_id as parentId,type from tags
+    </select>
+
+    <select id="getDataById" resultType="com.tct.data.model.TreeVo">
+        select id ,name,parent_id as parentId,type from tags where id=#{id}
+    </select>
+
+    <select id="getTagsByPId" resultType="com.tct.data.model.Tags">
+        select * from tags where parent_id=#{parentId}
+    </select>
+
+    <delete id="deleteByAssetsId" >
+        delete from assets_tags where assets_id=#{assetsId, jdbcType = INTEGER}
+    </delete>
+
+    <select id="getByAssetsId" resultType="Hashmap">
+        select t2.id ,t2.name from assets_tags t1
+        left join tags t2 on t1.tags_id =t2.id
+        where t1.assets_id=#{assetsId}
+    </select>
+
+    <select id="getTagsStringByAssetsId" resultType="java.lang.String">
+        select GROUP_CONCAT(t2.name) from assets_tags t1
+        left join tags t2 on t1.tags_id =t2.id
+        where t1.assets_id=#{assetsId}
+    </select>
+
+</mapper>

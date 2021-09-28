@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.OrganizationRelationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.OrganizationRelation">
+        <id column="id" property="id" />
+        <result column="assets_id" property="assetsId" />
+        <result column="organization_tree_id" property="organizationTreeId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+        <result column="extra" property="extra" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, assets_id, organization_tree_id, create_time, update_time, extra
+    </sql>
+
+    <select id="selectByRelateIds" resultMap="BaseResultMap">
+        select * from organization_relation
+        where organization_tree_id = #{organizationId, jdbcType = INTEGER}
+        and  assets_id=#{assetsId, jdbcType = INTEGER}
+        and  enable=#{enable, jdbcType = INTEGER}
+    </select>
+
+    <select id="getAssetsAssociateHistory" resultType="hashmap">
+        select t2.name as targetName ,t2.id as targetId from organization_relation t1
+        left  join  organization_tree t2 on t1.organization_tree_id=t2.id
+        where t1.assets_id=#{assetsId, jdbcType = INTEGER}
+            and t1.enable=0
+        <if test="targetId!=null">
+            and t1.organization_tree_id =#{targetId, jdbcType = INTEGER}
+        </if>
+        group by t2.id,t2.name
+    </select>
+
+    <delete id="deleteByAssetsId" >
+        delete from organization_relation where assets_id=#{assetsId, jdbcType = INTEGER}
+    </delete>
+
+    <select id="selectAssetsIdsByDirectoryIds" resultType="java.lang.Integer">
+        select assets_id from organization_relation
+        <where>
+            organization_tree_id in
+            <foreach collection="list" item="directoryId" index="index" open="(" close=")" separator=",">
+                #{directoryId}
+            </foreach>
+        </where>
+    </select>
+    <select id="selectAssetsIdsByDirectoryId" resultType="java.lang.Integer">
+        select assets_id from organization_relation where organization_tree_id = #{directoryId, jdbcType = INTEGER}
+    </select>
+    <select id="selectRelationIdsByDirectoryIds" resultType="java.lang.Integer">
+        select id from organization_relation
+        <where>
+            organization_tree_id in
+            <foreach collection="list" item="directoryId" index="index" open="(" close=")" separator=",">
+                #{directoryId}
+            </foreach>
+        </where>
+    </select>
+    <select id="selectRelationIdsByDirectoryId" resultType="java.lang.Integer">
+        select id from organization_relation where organization_tree_id = #{directoryId, jdbcType = INTEGER}
+    </select>
+    <select id="selectRelationIdsByAssetIds" resultType="java.lang.Integer">
+        select id from organization_relation
+        <where>
+            assets_id in
+            <foreach collection="list" item="assetId" index="index" open="(" close=")" separator=",">
+                #{assetId}
+            </foreach>
+        </where>
+    </select>
+</mapper>

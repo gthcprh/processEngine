@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.AssetsInfoMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.AssetsInfo">
+        <id column="id" property="id"/>
+        <result column="assets_num" property="assetsNum"/>
+        <result column="assets_name" property="assetsName"/>
+        <result column="assets_alias" property="assetsAlias"/>
+        <result column="status" property="status"/>
+        <result column="catalogue_distribute_status" property="catalogueDistributeStatus"/>
+        <result column="resource_info_id" property="resourceInfoId"/>
+        <result column="assets_metadata_id" property="assetsMetadataId"/>
+        <result column="assets_detail_id" property="assetsDetailId"/>
+        <result column="assets_description" property="assetsDescription"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , assets_num, assets_name, assets_alias, status, assets_distribute_status, resource_info_id, assets_metadata_id, assets_detail_id, assets_description, create_time, update_time
+    </sql>
+    <sql id="Assets_Column_List">
+        t1.id as id, t1.assets_num, t1.assets_name,t1.assets_alias as assetsAlias,  t1.status, t1.catalogue_distribute_status as catalogueDistributeStatus,
+        t1.org_distribute_status as orgDistributeStatus, t1.view_num as viewNum, t1.assets_description as assetsDescription,
+        t1.create_time as createTime, t1.update_time as updateTime
+    </sql>
+    <sql id="Assets_Detail_Column_List">
+        t1.id as id ,t1.assets_num as assetsNum,t1.assets_name as assetsName,t1.assets_alias as assetsAlias,t1.status as `status`,t1.view_num as viewNum ,t1.assets_description as assetsDescription,t1.create_time as createTime,t1.update_time as updateTime,t1.catalogue_distribute_status as catalogueDistributeStatus,t1.org_distribute_status as orgDistributeStatus,
+        t2.assets_area as assetsArea,t2.update_cycle as updateCycle,t2.shared_property as sharedProperty,t2.shared_way as sharedWay,t2.resource_description as resourceDescription,t2.relate_business_scene as relateBusinessScene,t2.source_business_scene as sourceBusinessScene,
+        t2.relate_system as relateSystem,t2.relate_info as relateInfo,t2.reference_standard as referenceStandard,t2.assets_source as assets_source,t2.assets_creator as assets_creator,t2.is_out_sensitive as isOutSensitive,t2.increment_field as  incrementField,t2.publish_time as publishTime,
+        t3.topic_id as topicId,t3.topic_name as topicName,t3.source_system as sourceSystem,t3.database_type as databaseType,t3.metadata_info as metadataInfo,t3.api_url as apiUrl,
+        t4.data as data,t4.data_count as dataCount, t4.data_size as dataSize
+    </sql>
+    <select id="listByCatalogue" resultType="com.tct.data.model.AssetsInfoVo">
+        select <include refid="Assets_Column_List"/> from assets_info t1
+        <if test="targetIds != null">
+        right join (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) t2 on t2.assets_id=t1.id
+        </if>
+        left join assets_detail t3 on t3.assets_id=t1.id
+        left join assets_metadata t4 on t4.assets_id =t1.id
+        left join assets_tags t5 on t5.assets_id=t1.id
+        left join tags t6 on t5.tags_id=t6.id
+        left join (select * from assets_relation where enable=1) t7 on t7.assets_id=t1.id
+        left join assets_catalogue_tree t8 on t8.id=t7.assets_catalogue_tree_id
+        left join (select * from organization_relation where enable=1) t9 on t9.assets_id=t1.id
+        left join organization_tree t10 on t10.id=t9.organization_tree_id
+        where 1 = 1
+        <if test="assetsName != null">
+            and t1.assets_name like #{assetsName,jdbcType=VARCHAR}
+        </if>
+        <if test="assetsNum != null">
+            and t1.assets_num like #{assetsNum,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null">
+            and t1.status like #{status,jdbcType=INTEGER}
+        </if>
+        <if test="distributeStatus != null">
+            and t1.catalogue_distribute_status like #{distributeStatus,jdbcType=INTEGER}
+        </if>
+        <if test="tagsId != null">
+            and t6.id = #{tagsId,jdbcType=INTEGER}
+        </if>
+        <if test="databaseType != null">
+            and t4.database_type = #{databaseType,jdbcType=VARCHAR}
+        </if>
+        <if test="sourceSystem != null">
+            and t4.source_system = #{sourceSystem,jdbcType=VARCHAR}
+        </if>
+        order by t1.id desc
+        <if test="limit != null">
+            limit #{limit,jdbcType=INTEGER} , #{offset,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <select id="countByCatalogue" resultType="java.lang.Integer">
+        select count(1) from assets_info t1
+        <if test="targetIds != null">
+            right join (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) t2 on t2.assets_id=t1.id
+        </if>
+        left join assets_detail t3 on t3.assets_id=t1.id
+        left join assets_metadata t4 on t4.assets_id =t1.id
+        left join assets_tags t5 on t5.assets_id=t1.id
+        left join tags t6 on t5.tags_id=t6.id
+        left join (select * from assets_relation where enable=1) t7 on t7.assets_id=t1.id
+        left join assets_catalogue_tree t8 on t8.id=t7.assets_catalogue_tree_id
+        left join (select * from organization_relation where enable=1) t9 on t9.assets_id=t1.id
+        left join organization_tree t10 on t10.id=t9.organization_tree_id
+        where 1 = 1
+        <if test="assetsName != null">
+            and t1.assets_name like #{assetsName,jdbcType=VARCHAR}
+        </if>
+        <if test="assetsNum != null">
+            and t1.assets_num like #{assetsNum,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null">
+            and t1.status like #{status,jdbcType=INTEGER}
+        </if>
+        <if test="distributeStatus != null">
+            and t1.catalogue_distribute_status like #{distributeStatus,jdbcType=INTEGER}
+        </if>
+        <if test="tagsId != null">
+            and t6.id = #{tagsId,jdbcType=INTEGER}
+        </if>
+        <if test="databaseType != null">
+            and t4.database_type = #{databaseType,jdbcType=VARCHAR}
+        </if>
+        <if test="sourceSystem != null">
+            and t4.source_system = #{sourceSystem,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+    <select id="listByCatalogueSimple" resultType="com.tct.data.model.AssetsInfo">
+        select t1.* from assets_info t1
+        <if test="targetIds != null">
+            right join  (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) t2 on t2.assets_id=t1.id
+        </if>
+        where t1.id is not null
+        order by t1.id desc
+        limit #{limit,jdbcType=INTEGER} , #{offset,jdbcType=INTEGER}
+    </select>
+
+    <select id="countByCatalogueSimple" resultType="java.lang.Integer">
+        select count(1)  from assets_info t1
+        <if test="targetIds != null">
+            right join  (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) t2 on t2.assets_id=t1.id
+        </if>
+        where t1.id is not null
+    </select>
+
+    <select id="assetsCatalogueList" resultType="com.tct.data.model.AssetsInfoVo">
+        SELECT *  ,GROUP_CONCAT(t5.name) as tags ,count(t5.id) as tagsNum FROM `assets_info` t1
+        left join assets_metadata t3 on t3.assets_id=t1.id
+        left join assets_tags t4 on t4.assets_id=t1.id
+        left join tags t5 on t5.id=t4.tags_id
+        where 1=1
+        <if test="keyword!=null">
+            and (t1.assets_name like #{keyword} or t1.assets_num like #{keyword}
+            or t1.assets_alias like #{keyword} or t1.assets_description like #{keyword})
+        </if>
+        <if test="tagsDistributeStatus!=null">
+            and t1.tags_distribute_status = ${tagsDistributeStatus}
+        </if>
+        <if test="distributeStatus==0">
+            and t1.catalogue_distribute_status &lt;&gt; 1
+        </if>
+        <if test="distributeStatus==1">
+            and t1.catalogue_distribute_status =1
+        </if>
+        <if test="sourceSystem!=null and databaseType!=null">
+            and t3.database_type=#{databaseType} and t3.source_system=#{sourceSystem}
+        </if>
+        group by t1.id
+        order by t1.id desc
+        limit #{limit,jdbcType=INTEGER} , #{offset,jdbcType=INTEGER}
+    </select>
+
+    <select id="assetsCatalogueCount" resultType="java.lang.Integer">
+        SELECT count(1) FROM (
+        SELECT t1.id FROM `assets_info` t1
+        left join assets_metadata t3 on t3.assets_id=t1.id
+        left join assets_tags t4 on t4.assets_id=t1.id
+        left join tags t5 on t5.id=t4.tags_id
+        where 1=1
+        <if test="keyword!=null">
+            and (t1.assets_name like #{keyword} or t1.assets_num like #{keyword}
+            or t1.assets_alias like #{keyword} or t1.assets_description like #{keyword})
+        </if>
+        <if test="tagsDistributeStatus!=null">
+            and t1.tags_distribute_status = ${tagsDistributeStatus}
+        </if>
+        <if test="distributeStatus==0">
+            and t1.catalogue_distribute_status &lt;&gt; 1
+        </if>
+        <if test="distributeStatus==1">
+            and t1.catalogue_distribute_status =1
+        </if>
+        <if test="sourceSystem!=null and databaseType!=null">
+            and t3.database_type=#{databaseType} and t3.source_system=#{sourceSystem}
+        </if>
+        group by t1.id
+                                 ) tt
+
+    </select>
+
+    <select id="shareCatalogue" resultType="com.tct.data.model.AssetsInfoVo">
+        SELECT * ,GROUP_CONCAT(t5.name) as tags ,count(t5.id) as tagsNum FROM `assets_info` t1
+        <if test="targetIds != null">
+            right join  (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) rj on rj.assets_id=t1.id
+        </if>
+        left join assets_detail t2 on t2.assets_id=t1.id
+        left join assets_metadata t3 on t3.assets_id=t1.id
+        left join assets_tags t4 on t4.assets_id=t1.id
+        left join tags t5 on t5.id=t4.tags_id
+        where 1=1
+        <if test="keyword!=null">
+            and (t1.assets_name like #{keyword} or t1.assets_num like #{keyword}
+                     or t1.assets_alias like #{keyword} or t1.assets_description like #{keyword})
+        </if>
+        <if test="sharedProperty!=null">
+            and t2.shared_property like #{sharedProperty}
+        </if>
+        <if test="sharedWay!=null">
+            and t2.shared_way like #{sharedWay}
+        </if>
+        <if test="updateCycle!=null">
+            and t2.update_cycle like #{updateCycle}
+        </if>
+        <if test="assetsArea !=null">
+            and t2.assets_area like #{assetsArea}
+        </if>
+        group by t1.id
+        order by t1.id desc
+        limit #{limit,jdbcType=INTEGER} , #{offset,jdbcType=INTEGER}
+    </select>
+
+    <select id="shareCatalogueCount" resultType="java.lang.Integer">
+        select count(1) from (
+        SELECT t1.id FROM `assets_info` t1
+        <if test="targetIds != null">
+            right join  (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) rj on rj.assets_id=t1.id
+        </if>
+        left join assets_detail t2 on t2.assets_id=t1.id
+        left join assets_metadata t3 on t3.assets_id=t1.id
+        left join assets_tags t4 on t4.assets_id=t1.id
+        left join tags t5 on t5.id=t4.tags_id
+        where 1=1
+        <if test="keyword!=null">
+            and (t1.assets_name like #{keyword} or t1.assets_num like #{keyword}
+                     or t1.assets_alias like #{keyword} or t1.assets_description like #{keyword})
+        </if>
+        <if test="sharedProperty!=null">
+            and t2.shared_property like #{sharedProperty}
+        </if>
+        <if test="sharedWay!=null">
+            and t2.shared_way like #{sharedWay}
+        </if>
+        <if test="updateCycle!=null">
+            and t2.update_cycle like #{updateCycle}
+        </if>
+        <if test="assetsArea !=null">
+            and t2.assets_area like #{assetsArea}
+        </if>
+        group by t1.id
+        ) tt
+    </select>
+
+    <select id="getList" resultType="com.tct.data.model.AssetsInfoVo">
+        SELECT * ,GROUP_CONCAT(t5.name) as tags ,count(t5.id) as tagsNum FROM `assets_info` t1
+        <if test="targetIds != null">
+            right join  (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) rj on rj.assets_id=t1.id
+        </if>
+        left join assets_detail t2 on t2.assets_id=t1.id
+        left join assets_metadata t3 on t3.assets_id=t1.id
+        left join assets_tags t4 on t4.assets_id=t1.id
+        left join tags t5 on t5.id=t4.tags_id
+        where 1=1
+        <if test="keyword!=null">
+            and (t1.assets_name like #{keyword} or t1.assets_num like #{keyword}
+                     or t1.assets_alias like #{keyword}  or t1.assets_description like #{keyword})
+        </if>
+        <if test="sharedProperty!=null">
+            and t2.shared_property like #{sharedProperty}
+        </if>
+        <if test="sharedWay!=null">
+            and t2.shared_way like #{sharedWay}
+        </if>
+        <if test="updateCycle!=null">
+            and t2.update_cycle like #{updateCycle}
+        </if>
+        <if test="assetsArea !=null">
+            and t2.assets_area like #{assetsArea}
+        </if>
+        <if test="tagsId!=null">
+            and t5.id = #{tagsId}
+        </if>
+        <if test="status!=null">
+            and t1.status = #{status}
+        </if>
+        group by t1.id
+        order by t1.id desc
+        limit #{limit,jdbcType=INTEGER} , #{offset,jdbcType=INTEGER}
+    </select>
+
+    <select id="getListCount" resultType="java.lang.Integer">
+        select count(1) from (
+        SELECT t1.id FROM `assets_info` t1
+        <if test="targetIds != null">
+            right join  (
+            select assets_id from assets_relation
+            <where>
+                enable=1 and assets_catalogue_tree_id in
+                <foreach collection="targetIds" item="targetId" index="index" open="(" close=")" separator=",">
+                    #{targetId}
+                </foreach>
+            </where>
+            ) rj on rj.assets_id=t1.id
+        </if>
+        left join assets_detail t2 on t2.assets_id=t1.id
+        left join assets_metadata t3 on t3.assets_id=t1.id
+        left join assets_tags t4 on t4.assets_id=t1.id
+        left join tags t5 on t5.id=t4.tags_id
+        where 1=1
+        <if test="keyword!=null">
+            and (t1.assets_name like #{keyword} or t1.assets_num like #{keyword}
+                     or t1.assets_alias like #{keyword} or t1.assets_description like #{keyword})
+        </if>
+        <if test="sharedProperty!=null">
+            and t2.shared_property like #{sharedProperty}
+        </if>
+        <if test="sharedWay!=null">
+            and t2.shared_way like #{sharedWay}
+        </if>
+        <if test="updateCycle!=null">
+            and t2.update_cycle like #{updateCycle}
+        </if>
+        <if test="assetsArea !=null">
+            and t2.assets_area like #{assetsArea}
+        </if>
+        <if test="tagsId!=null">
+            and t5.id = #{tagsId}
+        </if>
+        <if test="status!=null">
+            and t1.status = #{status}
+        </if>
+        group by t1.id) tt
+    </select>
+    <select id="selectAssetsDetail" resultType="com.tct.data.model.AssetsDetailVo">
+        select <include refid="Assets_Detail_Column_List"/> from assets_info t1
+        left join assets_detail t2 on t1.id=t2.assets_id
+        left join assets_metadata t3 on t1.id=t3.assets_id
+        left join resource_info t4 on t1.id=t4.assets_id
+        where t1.id=#{assetsId}
+    </select>
+</mapper>
