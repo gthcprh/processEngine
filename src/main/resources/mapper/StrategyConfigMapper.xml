@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.StrategyConfigMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.StrategyConfig">
+        <id column="id" property="id" />
+        <result column="strategy_name" property="strategyName" />
+        <result column="strategy_type" property="strategyType" />
+        <result column="strategy_detail" property="strategyDetail" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, strategy_name, strategy_type, strategy_detail
+    </sql>
+
+</mapper>

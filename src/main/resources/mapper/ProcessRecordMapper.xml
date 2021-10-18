@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tct.data.dao.ProcessRecordMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tct.data.model.ProcessRecord">
+        <id column="id" property="id" />
+        <result column="apply_id" property="applyId" />
+        <result column="current_node" property="currentNode" />
+        <result column="node_describe" property="nodeDescribe" />
+        <result column="status" property="status" />
+        <result column="next_node" property="nextNode" />
+        <result column="approver" property="approver" />
+        <result column="approve_info" property="approveInfo" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, apply_id, current_node, node_describe, status, next_node, approver, approve_info
+    </sql>
+
+</mapper>
