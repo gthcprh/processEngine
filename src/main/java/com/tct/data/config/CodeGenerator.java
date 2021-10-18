@@ -24,8 +24,8 @@ public class CodeGenerator {
      */
     private static final String outPutDir = "/src/main/java";
     private static final String dataName = "root";
-    private static final String dataPwd = "JKroot123";
-    private static final String dataUrl = "jdbc:mysql://112.126.69.158:3306/assetsCatalogue?serverTimezone=GMT%2B8&useSSL=FALSE&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true";
+    private static final String dataPwd = "mysql";
+    private static final String dataUrl = "jdbc:mysql://172.51.216.118:3306/processEngine?serverTimezone=GMT%2B8&useSSL=FALSE&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true";
     private static final String driverName = "com.mysql.cj.jdbc.Driver";
     private static final String parentPackage = "com.tct.data";
     private static final String mapperName = "dao";
