@@ -1,0 +1,34 @@
+```text
+[
+	{
+		"type":0,
+		"targetServer":[A],
+		"data":{
+				"approve_role":"admin",
+				"approver":"admin1"
+			}
+	},
+	{
+		"type":1,
+		"targetServer":[A,B],
+		"data":{
+				"A":{
+					"approve_role":"admin",
+					"approver":"admin1"
+					}
+				"B":{
+					"approve_role":"admin",
+					"approver":"admin1"
+					}
+			}
+	},
+	{
+		"type":2,
+		"targetServer":[C,D],
+		"data":{
+				"C":null,
+				"D":null"
+			}
+	}
+]
+```

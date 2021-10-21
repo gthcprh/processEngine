@@ -1,5 +1,6 @@
 package com.tct.data.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.tct.data.model.ServerInfo;
 import com.tct.data.dao.ServerInfoMapper;
 import com.tct.data.service.ServerInfoService;
@@ -17,4 +18,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoMapper, ServerInfo> implements ServerInfoService {
 
+    @Override
+    public ServerInfo getByToken(String token){
+        QueryWrapper<ServerInfo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(ServerInfo::getToken,token);
+        return this.getOne(queryWrapper);
+    }
 }

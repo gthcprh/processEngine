@@ -29,7 +29,7 @@ public class StrategyConfig implements Serializable {
      * ID
      */
     @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
+    private Integer id;
 
     /**
      * 策略名称

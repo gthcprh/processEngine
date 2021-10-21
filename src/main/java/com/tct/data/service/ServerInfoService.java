@@ -13,4 +13,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ServerInfoService extends IService<ServerInfo> {
 
+    ServerInfo getByToken(String token);
 }

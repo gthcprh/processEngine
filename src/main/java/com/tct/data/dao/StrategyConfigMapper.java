@@ -2,6 +2,7 @@ package com.tct.data.dao;
 
 import com.tct.data.model.StrategyConfig;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * <p>
@@ -11,6 +12,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @author hannibal
  * @since 2021-10-11
  */
+@Mapper
 public interface StrategyConfigMapper extends BaseMapper<StrategyConfig> {
 
 }

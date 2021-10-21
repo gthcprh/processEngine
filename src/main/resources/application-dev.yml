@@ -1,6 +1,6 @@
 server:
   max-http-header-size: 8192
-  port: 9099
+  port: 9091
 logging:
   level:
     com:
@@ -12,11 +12,16 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
     name: my-blog-datasource
-    url: jdbc:mysql://172.51.216.118:3306/assetsCatalogue?serverTimezone=GMT%2B8&useSSL=FALSE&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true
+    url: jdbc:mysql://172.51.216.118:3306/processengine?serverTimezone=GMT%2B8&useSSL=FALSE&useUnicode=true&characterEncoding=utf-8&autoReconnect=true&allowMultiQueries=true
     username: root
     password: mysql
   rabbitmq:
-    addresses: 101.200.86.95:5672,112.126.65.241:5672,101.200.199.44:5672,123.57.161.47:5672
+    addresses: 172.51.216.117:5672
+    #username: admin
+    #password: admin
+    listener:
+      simple:
+        acknowledge-mode: manual #手动签收
 mybatis-plus:
   type-aliases-package: com.tct.data
   mapper-locations: classpath*:mapper/*.xml

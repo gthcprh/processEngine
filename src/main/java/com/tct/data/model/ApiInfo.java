@@ -52,8 +52,8 @@ public class ApiInfo implements Serializable {
     /**
      * 服务描述
      */
-    @TableField("desc")
-    private String desc;
+    @TableField("description")
+    private String description;
 
 
 }
