@@ -10,13 +10,13 @@
         <result column="node_describe" property="nodeDescribe" />
         <result column="status" property="status" />
         <result column="next_node" property="nextNode" />
-        <result column="approver" property="approver" />
-        <result column="approve_info" property="approveInfo" />
+        <result column="aduitr" property="aduitr" />
+        <result column="aduit_info" property="aduitInfo" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, apply_id, current_node, node_describe, status, next_node, approver, approve_info
+        id, apply_id, current_node, node_describe, status, next_node, aduitr, aduit_info
     </sql>
 
 </mapper>

@@ -1,8 +1,8 @@
 package com.tct.data.model.msg;
 
 import com.tct.data.model.ApplyInfo;
-import com.tct.data.model.ApproveInfo;
-import com.tct.data.model.ApproverInfo;
+import com.tct.data.model.AuditInfo;
+import com.tct.data.model.AuditorInfo;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -13,7 +13,7 @@ import org.springframework.beans.BeanUtils;
  * @description 审批消息统一格式
  */
 @Data
-public class ApproveMessage {
+public class AuditMessage {
 
     /**
      * 全局唯一id
@@ -48,6 +48,6 @@ public class ApproveMessage {
     /**
      * 审批信息
      */
-    private ApproverInfo approverInfo;
+    private AuditorInfo auditorInfo;
 
 }

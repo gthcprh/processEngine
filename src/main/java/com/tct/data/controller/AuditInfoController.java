@@ -14,8 +14,8 @@ import org.springframework.stereotype.Controller;
  * @since 2021-10-20
  */
 @Controller
-@RequestMapping("/approve-info")
-public class ApproveInfoController {
+@RequestMapping("/aduit-info")
+public class AuditInfoController {
 
 }
 

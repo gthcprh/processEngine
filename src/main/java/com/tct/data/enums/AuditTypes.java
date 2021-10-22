@@ -6,7 +6,7 @@ package com.tct.data.enums;
  * @Version 1.0
  * @description 审批类型
  */
-public enum ApproveTypes {
+public enum AuditTypes {
 
     /**
      * 审批类型枚举  SIMPLE  AND_AUDIT  OR_AUDIT
@@ -33,8 +33,8 @@ public enum ApproveTypes {
         return name;
     }
 
-    public static ApproveTypes getEnum(Integer value) {
-        for (ApproveTypes e : ApproveTypes.values()) {
+    public static AuditTypes getEnum(Integer value) {
+        for (AuditTypes e : AuditTypes.values()) {
             if (value.equals(e.getType())) {
                 return e;
             }
@@ -42,7 +42,7 @@ public enum ApproveTypes {
         return null;
     }
 
-    ApproveTypes(int type, String name) {
+    AuditTypes(int type, String name) {
         this.type = type;
         this.name = name;
     }

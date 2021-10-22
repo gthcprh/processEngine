@@ -2,12 +2,12 @@ package com.tct.data.queue;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.tct.data.enums.ApproveTypes;
+import com.tct.data.enums.AuditTypes;
 import com.tct.data.enums.RequestTypes;
 import com.tct.data.enums.ResultCode;
 import com.tct.data.model.*;
 import com.tct.data.model.msg.ApplyMessage;
-import com.tct.data.model.msg.ApproveMessage;
+import com.tct.data.model.msg.AuditMessage;
 import com.tct.data.service.ApiInfoService;
 import com.tct.data.service.ApplyInfoService;
 import com.tct.data.service.ServerInfoService;
@@ -61,11 +61,11 @@ public class MessageProcessor {
         applyInfo.setApplyInfo(applyMessage.getData());
         applyInfoService.save(applyInfo);
         //包装消息开始流转
-        ApproveMessage approveMessage = new ApproveMessage();
-        approveMessage.setMsgId(applyInfo.getId());
-        approveMessage.setCurrentNode(1);
-        approveMessage.setApplyInfo(applyInfo);
-        nodeForward(approveMessage, applyMessage.getStrategyId(), 1);
+        AuditMessage aduitMessage = new AuditMessage();
+        aduitMessage.setMsgId(applyInfo.getId());
+        aduitMessage.setCurrentNode(1);
+        aduitMessage.setApplyInfo(applyInfo);
+        nodeForward(aduitMessage, applyMessage.getStrategyId(), 1);
     }
 
     /**
@@ -75,28 +75,28 @@ public class MessageProcessor {
      * @param strategyId
      * @param currentNode
      */
-    public void nodeForward(ApproveMessage message, int strategyId, int currentNode) {
+    public void nodeForward(AuditMessage message, int strategyId, int currentNode) {
         StrategyConfig strategyConfig = strategyConfigService.getById(strategyId);
         String info = strategyConfig.getStrategyDetail();
         JSONArray jsonArray = JSONArray.parseArray(info);
         StrategyInfo strategyInfo = jsonArray.getObject(currentNode - 1, StrategyInfo.class);
-        ApproveTypes approveTypes = ApproveTypes.getEnum(strategyInfo.getType());
-        message.setNodeTypeCode(approveTypes.getType());
-        message.setNodeTypeName(approveTypes.getName());
-        switch (approveTypes) {
+        AuditTypes aduitTypes = AuditTypes.getEnum(strategyInfo.getType());
+        message.setNodeTypeCode(aduitTypes.getType());
+        message.setNodeTypeName(aduitTypes.getName());
+        switch (aduitTypes) {
             case SIMPLE:
                 int apiId = strategyInfo.getTargetServer().get(0);
-                ApproverInfo approverInfo = strategyInfo.getInfo().get(0);
-                message.setApproverInfo(approverInfo);
+                AuditorInfo auditorInfo = strategyInfo.getInfo().get(0);
+                message.setAuditorInfo(auditorInfo);
                 String msg = JSONObject.toJSONString(message);
                 informNextNode(apiId, msg);
                 break;
             case AND_APPROVE:
             case OR_APPROVE:
-                List<ApproverInfo> approverInfos=strategyInfo.getInfo();
+                List<AuditorInfo> auditorInfos=strategyInfo.getInfo();
                 for (int i : strategyInfo.getTargetServer()) {
                     int apiId1 = strategyInfo.getTargetServer().get(i);
-                    message.setApproverInfo(approverInfos.get(i));
+                    message.setAuditorInfo(auditorInfos.get(i));
                     String msg1 = JSONObject.toJSONString(message);
                     informNextNode(apiId1, msg1);
                 }
@@ -118,9 +118,9 @@ public class MessageProcessor {
         String info = strategyConfig.getStrategyDetail();
         JSONArray jsonArray = JSONArray.parseArray(info);
         StrategyInfo strategyInfo = jsonArray.getObject(currentNode, StrategyInfo.class);
-        ApproveTypes approveTypes = ApproveTypes.getEnum(strategyInfo.getType());
+        AuditTypes aduitTypes = AuditTypes.getEnum(strategyInfo.getType());
         String data = "";
-        switch (approveTypes) {
+        switch (aduitTypes) {
             case SIMPLE:
                 int apiId = strategyInfo.getTargetServer().get(0);
                 Result simpleResult=informNextNode(apiId, data);
@@ -131,8 +131,8 @@ public class MessageProcessor {
             case AND_APPROVE:
             case OR_APPROVE:
                 for (int i : strategyInfo.getTargetServer()) {
-                    Result approveResult=informNextNode(i, data);
-                    if(approveResult.getResultCode()==ResultCode.SUCCESS.getCode()){
+                    Result aduitResult=informNextNode(i, data);
+                    if(aduitResult.getResultCode()==ResultCode.SUCCESS.getCode()){
 
                     }
                 }

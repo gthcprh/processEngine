@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.tct.data.dao.ApproveInfoMapper">
+<mapper namespace="com.tct.data.dao.AuditInfoMapper">
 
     <!-- 通用查询映射结果 -->
-    <resultMap id="BaseResultMap" type="com.tct.data.model.ApproveInfo">
+    <resultMap id="BaseResultMap" type="com.tct.data.model.AuditInfo">
         <id column="id" property="id" />
         <result column="apply_id" property="applyId" />
-        <result column="approver_id" property="approverId" />
-        <result column="approver_role_id" property="approverRoleId" />
+        <result column="aduitr_id" property="aduitrId" />
+        <result column="aduitr_role_id" property="aduitrRoleId" />
         <result column="status" property="status" />
         <result column="audit_info" property="auditInfo" />
         <result column="create_time" property="createTime" />
@@ -16,7 +16,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, apply_id, approver_id, approver_role_id, status, audit_info, create_time, update_time
+        id, apply_id, aduitr_id, aduitr_role_id, status, audit_info, create_time, update_time
     </sql>
 
 </mapper>

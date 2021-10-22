@@ -4,8 +4,8 @@
 		"type":0,
 		"targetServer":[A],
 		"data":{
-				"approve_role":"admin",
-				"approver":"admin1"
+				"aduit_role":"admin",
+				"aduitr":"admin1"
 			}
 	},
 	{
@@ -13,12 +13,12 @@
 		"targetServer":[A,B],
 		"data":{
 				"A":{
-					"approve_role":"admin",
-					"approver":"admin1"
+					"aduit_role":"admin",
+					"aduitr":"admin1"
 					}
 				"B":{
-					"approve_role":"admin",
-					"approver":"admin1"
+					"aduit_role":"admin",
+					"aduitr":"admin1"
 					}
 			}
 	},

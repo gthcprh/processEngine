@@ -1,6 +1,6 @@
 package com.tct.data.dao;
 
-import com.tct.data.model.ApproveInfo;
+import com.tct.data.model.AuditInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2021-10-20
  */
 @Mapper
-public interface ApproveInfoMapper extends BaseMapper<ApproveInfo> {
+public interface AuditInfoMapper extends BaseMapper<AuditInfo> {
 
 }

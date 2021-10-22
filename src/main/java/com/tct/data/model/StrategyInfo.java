@@ -17,7 +17,7 @@ public class StrategyInfo {
 
     private List<Integer> targetServer;
 
-    private List<ApproverInfo> info;
+    private List<AuditorInfo> info;
 
     private String data;
 

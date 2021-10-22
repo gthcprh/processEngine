@@ -21,8 +21,8 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("approve_info")
-public class ApproveInfo implements Serializable {
+@TableName("aduit_info")
+public class AuditInfo implements Serializable {
 
     private static final long serialVersionUID=1L;
 
@@ -41,14 +41,14 @@ public class ApproveInfo implements Serializable {
     /**
      * 审批用户
      */
-    @TableField("approver_id")
-    private Long approverId;
+    @TableField("auditor_id")
+    private Long auditorId;
 
     /**
      * 审批角色
      */
-    @TableField("approver_role_id")
-    private Integer approverRoleId;
+    @TableField("audit_role_id")
+    private Integer auditRoleId;
 
     /**
      * 审批状态，0：不通过

@@ -1,6 +1,6 @@
 package com.tct.data.service;
 
-import com.tct.data.model.ApproveInfo;
+import com.tct.data.model.AuditInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
@@ -11,6 +11,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @author hannibal
  * @since 2021-10-20
  */
-public interface ApproveInfoService extends IService<ApproveInfo> {
+public interface AuditInfoService extends IService<AuditInfo> {
 
 }
