@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.tct.data.model.StrategyConfig;
 import com.tct.data.dao.StrategyConfigMapper;
+import com.tct.data.model.StrategyInfo;
 import com.tct.data.service.StrategyConfigService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -30,5 +31,15 @@ public class StrategyConfigServiceImpl extends ServiceImpl<StrategyConfigMapper,
         for(int i=0,l=jsonArray.size();i<l;i++){
             JSONObject jsonObject=jsonArray.getJSONObject(i);
         }
+    }
+
+    @Override
+    public StrategyInfo getStrategyInfo(int strategyConfigId, int node){
+        StrategyConfig strategyConfig=this.getById(strategyConfigId);
+        String info = strategyConfig.getStrategyDetail();
+        JSONArray jsonArray = JSONArray.parseArray(info);
+        StrategyInfo strategyInfo = jsonArray.getObject(node - 1, StrategyInfo.class);
+        strategyInfo.setStatus(jsonArray.size()!=node);
+        return strategyInfo;
     }
 }

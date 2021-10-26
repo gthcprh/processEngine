@@ -1,14 +1,15 @@
 package com.tct.data.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import java.util.Date;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * <p>
@@ -21,10 +22,10 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("aduit_info")
+@TableName("audit_info")
 public class AuditInfo implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * 审批ID
@@ -37,6 +38,18 @@ public class AuditInfo implements Serializable {
      */
     @TableField("apply_id")
     private Long applyId;
+
+    /**
+     * apiId
+     */
+    @TableField("api_id")
+    private Integer apiId;
+
+    /**
+     * 当前节点
+     */
+    @TableField("current_node")
+    private Integer currentNode;
 
     /**
      * 审批用户
@@ -52,8 +65,8 @@ public class AuditInfo implements Serializable {
 
     /**
      * 审批状态，0：不通过
-1：通过
-2：未审批
+     * 1：通过
+     * 2：未审批
      */
     @TableField("status")
     private Integer status;

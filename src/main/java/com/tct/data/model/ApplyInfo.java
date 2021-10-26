@@ -1,16 +1,16 @@
 package com.tct.data.model;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
-import java.io.Serializable;
-import java.time.LocalDateTime;
-
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * <p>
@@ -26,7 +26,7 @@ import lombok.experimental.Accessors;
 @TableName("apply_info")
 public class ApplyInfo implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * ID
@@ -71,6 +71,11 @@ public class ApplyInfo implements Serializable {
     private String certificate;
 
     /**
+     * 当前节点
+     */
+    @TableField("current_node")
+    private Integer currentNode;
+    /**
      * 状态，0：已结束（拒绝），1：已结束（成功），2：进行中
      */
     @TableField("status")
@@ -89,4 +94,10 @@ public class ApplyInfo implements Serializable {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     private LocalDateTime createTime;
 
+    /**
+     * 创建时间
+     */
+    @TableField("update_time")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    private LocalDateTime updateTime;
 }

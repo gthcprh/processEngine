@@ -1,14 +1,16 @@
 package com.tct.data.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
  * @Author: Hannibal
  * @Date: 2021/10/21 11:48
  * @Version 1.0
- * @description
+ * @description 审批人信息
  */
 @Data
+@AllArgsConstructor
 public class AuditorInfo {
 
     /**
@@ -29,5 +31,5 @@ public class AuditorInfo {
     /**
      * 审批角色id
      */
-    private Long auditRoleId;
+    private Integer auditRoleId;
 }

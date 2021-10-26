@@ -43,9 +43,9 @@ public class ApplyMessage {
      */
     private String data;
 
-    public ApplyInfo toApplyInfo(){
-        ApplyInfo applyInfo=new ApplyInfo();
-        BeanUtils.copyProperties(this,applyInfo);
+    public ApplyInfo toApplyInfo() {
+        ApplyInfo applyInfo = new ApplyInfo();
+        BeanUtils.copyProperties(this, applyInfo);
         return applyInfo;
     }
 

@@ -1,6 +1,5 @@
 package com.tct.data.model.msg;
 
-import com.tct.data.model.ApplyInfo;
 import com.tct.data.model.AuditorInfo;
 import lombok.Data;
 
@@ -19,19 +18,37 @@ public class FeedbackMessage {
     private Long msgId;
 
     /**
+     * 审批id（全局唯一）
+     */
+    private Long auditId;
+
+    /**
      * 当前节点
      */
     private Integer currentNode;
 
     /**
-     * 用户请求表示，用于验证原系统
+     * 用户请求标识，用于验证原系统
      */
     private String token;
 
     /**
-     * 当前节点
+     * 数据
      */
     private String data;
 
-    private Integer apiId;
+    /**
+     * 审批结果
+     */
+    private Integer auditResult;
+
+    /**
+     * 审批信息
+     */
+    private String auditInfo;
+
+    /**
+     * 审批信息
+     */
+    private AuditorInfo auditorInfo;
 }

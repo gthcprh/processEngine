@@ -13,4 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ApplyInfoService extends IService<ApplyInfo> {
 
+    boolean updateStatus(Long applyId, int status);
+
+    boolean updateNode(Long applyId, int nodeNum);
 }

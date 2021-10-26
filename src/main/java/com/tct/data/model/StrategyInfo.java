@@ -21,4 +21,8 @@ public class StrategyInfo {
 
     private String data;
 
+    /**
+     * 能否继续流转
+     */
+    private boolean status;
 }

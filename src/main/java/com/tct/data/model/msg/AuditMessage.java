@@ -1,10 +1,8 @@
 package com.tct.data.model.msg;
 
 import com.tct.data.model.ApplyInfo;
-import com.tct.data.model.AuditInfo;
 import com.tct.data.model.AuditorInfo;
 import lombok.Data;
-import org.springframework.beans.BeanUtils;
 
 /**
  * @Author: Hannibal
@@ -19,6 +17,11 @@ public class AuditMessage {
      * 全局唯一id
      */
     private Long msgId;
+
+    /**
+     * 审批id（全局唯一）
+     */
+    private Long auditId;
 
     /**
      * 当前节点

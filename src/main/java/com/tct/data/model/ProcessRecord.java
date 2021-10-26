@@ -64,14 +64,14 @@ public class ProcessRecord implements Serializable {
     /**
      * 审批人
      */
-    @TableField("aduitr")
-    private String aduitr;
+    @TableField("auditor")
+    private String auditor;
 
     /**
      * 审批意见
      */
-    @TableField("aduit_info")
-    private String aduitInfo;
+    @TableField("audit_info")
+    private String auditInfo;
 
 
 }
