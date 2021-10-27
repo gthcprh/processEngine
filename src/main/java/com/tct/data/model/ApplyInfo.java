@@ -82,6 +82,12 @@ public class ApplyInfo implements Serializable {
     private Integer status;
 
     /**
+     * 用于申请结束，反馈原系统api的id
+     */
+    @TableField("feedback_api_id")
+    private Integer feedbackApiId;
+
+    /**
      * 描述
      */
     @TableField("description")

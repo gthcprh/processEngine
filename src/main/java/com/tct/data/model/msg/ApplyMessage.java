@@ -43,6 +43,11 @@ public class ApplyMessage {
      */
     private String data;
 
+    /**
+     * 用于反馈的apiid
+     */
+    private Integer feedbackApiId;
+
     public ApplyInfo toApplyInfo() {
         ApplyInfo applyInfo = new ApplyInfo();
         BeanUtils.copyProperties(this, applyInfo);

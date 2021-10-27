@@ -1,9 +1,18 @@
 package com.tct.data.controller;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.tct.data.model.ApiInfo;
+import com.tct.data.service.ApiInfoService;
+import com.tct.data.util.Result;
+import com.tct.data.util.ResultGenerator;
+import org.springframework.util.ObjectUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
+
+import javax.annotation.Resource;
 
 /**
  * <p>
@@ -14,8 +23,21 @@ import org.springframework.stereotype.Controller;
  * @since 2021-10-18
  */
 @Controller
-@RequestMapping("/api-info")
+@RequestMapping("/apiInfo")
 public class ApiInfoController {
+
+    @Resource
+    ApiInfoService apiInfoService;
+
+    @GetMapping("list")
+    public Result list(Integer serverId){
+        if(ObjectUtils.isEmpty(serverId)){
+            return ResultGenerator.success(apiInfoService.list());
+        }
+        QueryWrapper<ApiInfo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(ApiInfo::getServiceId,serverId);
+        return ResultGenerator.success(apiInfoService.list(queryWrapper));
+    }
 
 }
 

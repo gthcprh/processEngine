@@ -6,6 +6,7 @@ import com.tct.data.dao.ServerInfoMapper;
 import com.tct.data.service.ServerInfoService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 /**
  * <p>
@@ -23,5 +24,13 @@ public class ServerInfoServiceImpl extends ServiceImpl<ServerInfoMapper, ServerI
         QueryWrapper<ServerInfo> queryWrapper=new QueryWrapper<>();
         queryWrapper.lambda().eq(ServerInfo::getToken,token);
         return this.getOne(queryWrapper);
+    }
+
+    @Override
+    public boolean isRepeat(String serverName, String owner){
+        QueryWrapper<ServerInfo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(ServerInfo::getServerName,serverName)
+                .eq(ServerInfo::getOwner,owner);
+        return !ObjectUtils.isEmpty(this.getOne(queryWrapper));
     }
 }

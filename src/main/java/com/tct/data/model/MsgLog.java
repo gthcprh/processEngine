@@ -5,23 +5,28 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 服务信息
+ * 消息日志
  * </p>
  *
  * @author hannibal
- * @since 2021-10-18
+ * @since 2021-10-27
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("server_info")
-public class ServerInfo implements Serializable {
+@TableName("msg_log")
+public class MsgLog implements Serializable {
 
     private static final long serialVersionUID=1L;
 
@@ -32,10 +37,10 @@ public class ServerInfo implements Serializable {
     private Integer id;
 
     /**
-     * 服务名称
+     * token
      */
-    @TableField("server_name")
-    private String serverName;
+    @TableField("token")
+    private String token;
 
     /**
      * 所有者
@@ -44,10 +49,28 @@ public class ServerInfo implements Serializable {
     private String owner;
 
     /**
-     * 标识
+     * 类型，1：申请，2：审批
      */
-    @TableField("token")
-    private String token;
+    @TableField("type")
+    private Integer type;
+
+    /**
+     * 消息体
+     */
+    @TableField("data")
+    private String data;
+
+    /**
+     * 状态
+     */
+    @TableField("status")
+    private Integer status=0;
+
+    /**
+     * 原因
+     */
+    @TableField("reason")
+    private String reason;
 
 
 }

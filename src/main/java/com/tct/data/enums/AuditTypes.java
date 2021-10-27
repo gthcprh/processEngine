@@ -12,8 +12,8 @@ public enum AuditTypes {
      * 审批类型枚举  SIMPLE  AND_AUDIT  OR_AUDIT
      */
     SIMPLE(1, "单一节点"),
-    AND_APPROVE(2, "会签"),
-    OR_APPROVE(3, "或签");
+    AND_AUDIT(2, "会签"),
+    OR_AUDIT(3, "或签");
 
     /**
      * 编码

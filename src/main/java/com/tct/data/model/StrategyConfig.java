@@ -41,7 +41,7 @@ public class StrategyConfig implements Serializable {
      * 策略类型
      */
     @TableField("strategy_type")
-    private String strategyType;
+    private Integer strategyType;
 
     /**
      * 策略详情（json数组，一个对象一个节点）

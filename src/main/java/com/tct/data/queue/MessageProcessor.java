@@ -2,9 +2,10 @@ package com.tct.data.queue;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.tct.data.enums.AuditStatus;
 import com.tct.data.enums.AuditTypes;
 import com.tct.data.enums.RequestTypes;
-import com.tct.data.enums.ResultCode;
+import com.tct.data.exception.PeException;
 import com.tct.data.model.*;
 import com.tct.data.model.msg.ApplyMessage;
 import com.tct.data.model.msg.AuditMessage;
@@ -55,7 +56,7 @@ public class MessageProcessor {
         ApplyInfo applyInfo = applyMessage.toApplyInfo();
         ServerInfo serverInfo = serverInfoService.getByToken(applyMessage.getToken());
         if (ObjectUtils.isEmpty(serverInfo)) {
-            return;
+            throw new PeException("token校验失败");
         }
         applyInfo.setServerId(serverInfo.getId());
         applyInfo.setStatus(2);
@@ -63,11 +64,11 @@ public class MessageProcessor {
         applyInfo.setApplyInfo(applyMessage.getData());
         applyInfoService.save(applyInfo);
         //包装消息开始流转
-        AuditMessage aduitMessage = new AuditMessage();
-        aduitMessage.setMsgId(applyInfo.getId());
-        aduitMessage.setCurrentNode(1);
-        aduitMessage.setApplyInfo(applyInfo);
-        nodeForward(aduitMessage, applyMessage.getStrategyId(), 1);
+        AuditMessage auditMessage = new AuditMessage();
+        auditMessage.setMsgId(applyInfo.getId());
+        auditMessage.setCurrentNode(1);
+        auditMessage.setApplyInfo(applyInfo);
+        nodeForward(auditMessage, applyMessage.getStrategyId(), 1);
     }
 
     /**
@@ -80,8 +81,8 @@ public class MessageProcessor {
     public void nodeForward(AuditMessage message, int strategyId, int currentNode) {
         StrategyConfig strategyConfig = strategyConfigService.getById(strategyId);
         String info = strategyConfig.getStrategyDetail();
-        JSONArray jsonArray = JSONArray.parseArray(info);
-        StrategyInfo strategyInfo = jsonArray.getObject(currentNode - 1, StrategyInfo.class);
+        List<StrategyInfo> strategyInfoList = JSONArray.parseArray(info, StrategyInfo.class);
+        StrategyInfo strategyInfo = strategyInfoList.get(currentNode - 1);
         AuditTypes auditTypes = AuditTypes.getEnum(strategyInfo.getType());
         message.setNodeTypeCode(auditTypes.getType());
         message.setNodeTypeName(auditTypes.getName());
@@ -105,8 +106,8 @@ public class MessageProcessor {
                 String msg = JSONObject.toJSONString(message);
                 informNextNode(apiId, msg);
                 break;
-            case AND_APPROVE:
-            case OR_APPROVE:
+            case AND_AUDIT:
+            case OR_AUDIT:
                 List<AuditorInfo> auditorInfos = strategyInfo.getInfo();
                 for (int i : strategyInfo.getTargetServer()) {
                     int apiId1 = strategyInfo.getTargetServer().get(i);
@@ -132,42 +133,6 @@ public class MessageProcessor {
         }
         //结束更新
         applyInfoService.updateNode(message.getMsgId(), message.getCurrentNode());
-    }
-
-    /**
-     * 节点转发
-     *
-     * @param message
-     * @param strategyId
-     * @param currentNode
-     */
-    public void nodeForward(String message, int strategyId, int currentNode) {
-        StrategyConfig strategyConfig = strategyConfigService.getById(strategyId);
-        String info = strategyConfig.getStrategyDetail();
-        JSONArray jsonArray = JSONArray.parseArray(info);
-        StrategyInfo strategyInfo = jsonArray.getObject(currentNode, StrategyInfo.class);
-        AuditTypes auditTypes = AuditTypes.getEnum(strategyInfo.getType());
-        String data = "";
-        switch (auditTypes) {
-            case SIMPLE:
-                int apiId = strategyInfo.getTargetServer().get(0);
-                Result simpleResult = informNextNode(apiId, data);
-                if (simpleResult.getResultCode() == ResultCode.SUCCESS.getCode()) {
-
-                }
-                break;
-            case AND_APPROVE:
-            case OR_APPROVE:
-                for (int i : strategyInfo.getTargetServer()) {
-                    Result aduitResult = informNextNode(i, data);
-                    if (aduitResult.getResultCode() == ResultCode.SUCCESS.getCode()) {
-
-                    }
-                }
-                break;
-            default:
-                break;
-        }
     }
 
     /**
@@ -200,25 +165,28 @@ public class MessageProcessor {
      */
     public void dealAuditFeedback(FeedbackMessage feedbackMessage) {
         //校验当前节点与申请节点是否一致，审批id和节点是否匹配，审批状态是否已经批过
+        ServerInfo serverInfo = serverInfoService.getByToken(feedbackMessage.getToken());
+        if (ObjectUtils.isEmpty(serverInfo)) {
+            throw new PeException("token校验失败");
+        }
         int status = feedbackMessage.getAuditResult();
         ApplyInfo applyInfo = applyInfoService.getById(feedbackMessage.getMsgId());
         if (ObjectUtils.isEmpty(applyInfo)) {
-            log.error("申请id不存在");
-            return;
+            throw new PeException("申请id不存在");
+        }
+        if (applyInfo.getStatus()!=2) {
+            throw new PeException("该申请流程已结束");
         }
         if (!applyInfo.getCurrentNode().equals(feedbackMessage.getCurrentNode())) {
-            log.error("审批消息节点与当前进度节点不一致");
-            return;
+            throw new PeException("审批消息节点与当前进度节点不一致");
         }
         AuditInfo auditInfo = auditInfoService.getById(feedbackMessage.getAuditId());
         if (!ObjectUtils.isEmpty(auditInfo) && auditInfo.getStatus() != 2) {
-            log.error("未找到改审批信息或者该审批已经被处理");
-            return;
+            throw new PeException("未找到改审批信息或者该审批已经被处理");
         }
         boolean result = auditInfoService.updateAuditInfo(feedbackMessage.getAuditId(), status, feedbackMessage.getAuditInfo());
         if (!result) {
-            log.error("审批信息修改失败");
-            return;
+            throw new PeException("审批信息修改失败");
         }
         //判断下一步操作
         StrategyInfo strategyInfo = strategyConfigService.getStrategyInfo(applyInfo.getStrategyId(), applyInfo.getCurrentNode());
@@ -232,13 +200,13 @@ public class MessageProcessor {
                     doNextNode(applyInfo, strategyInfoStatus);
                 } else {
                     //todo 失败，流程结束
-                    applyInfoService.updateStatus(applyInfo.getId(), 0);
+                    failFinish(applyInfo);
                 }
                 break;
-            case AND_APPROVE:
+            case AND_AUDIT:
                 if (status == 0) {
                     //todo 失败，流程结束
-                    applyInfoService.updateStatus(applyInfo.getId(), 0);
+                    failFinish(applyInfo);
                     return;
                 }
                 List<Integer> andList = auditInfoService.getOtherAuditStatus(applyInfo.getId(), applyInfo.getCurrentNode());
@@ -248,7 +216,7 @@ public class MessageProcessor {
                     return;
                 }
                 break;
-            case OR_APPROVE:
+            case OR_AUDIT:
                 if (status == 1) {
                     //todo 开始下一流程
                     doNextNode(applyInfo, strategyInfoStatus);
@@ -257,7 +225,7 @@ public class MessageProcessor {
                 List<Integer> orList = auditInfoService.getOtherAuditStatus(applyInfo.getId(), applyInfo.getCurrentNode());
                 if (!orList.contains(2)) {
                     //todo 流程结束，失败
-                    applyInfoService.updateStatus(applyInfo.getId(), 0);
+                    failFinish(applyInfo);
                     return;
                 }
                 break;
@@ -275,7 +243,7 @@ public class MessageProcessor {
     public void doNextNode(ApplyInfo applyInfo, boolean strategyInfoStatus) {
 
         if (!strategyInfoStatus) {
-            applyInfoService.updateStatus(applyInfo.getId(), 1);
+            successFinish(applyInfo);
             return;
         }
         int nextNode = applyInfo.getCurrentNode() + 1;
@@ -287,4 +255,23 @@ public class MessageProcessor {
         nodeForward(auditMessage, applyInfo.getStrategyId(), nextNode);
     }
 
+    /**
+     * 流程结束（成功）处理
+     *
+     * @param applyInfo
+     */
+    public void successFinish(ApplyInfo applyInfo) {
+        applyInfoService.updateStatus(applyInfo.getId(), AuditStatus.AGREE.getCode());
+        informNextNode(applyInfo.getFeedbackApiId(), JSONObject.toJSONString(applyInfo));
+    }
+
+    /**
+     * 流程结束（失败）处理
+     *
+     * @param applyInfo
+     */
+    public void failFinish(ApplyInfo applyInfo) {
+        applyInfoService.updateStatus(applyInfo.getId(), AuditStatus.DISAGREE.getCode());
+        informNextNode(applyInfo.getFeedbackApiId(), JSONObject.toJSONString(applyInfo));
+    }
 }

@@ -2,18 +2,17 @@ package com.tct.data.enums;
 
 /**
  * @Author: Hannibal
- * @Date: 2021/10/19 19:03
+ * @Date: 2021/10/27 10:17
  * @Version 1.0
- * @description 审批类型
+ * @description
  */
-public enum AuditStatus {
+public enum StrategyTypes {
 
     /**
-     * 审批类型枚举  DISAGREE  AGREE  AUDITING
+     * 策略类型  DISAGREE  AGREE  AUDITING
      */
-    DISAGREE(0, "不同意"),
-    AGREE(1, "同意"),
-    AUDITING(2, "审批中");
+    APPLY_AUDIT(1, "申请审批"),
+    SERVER_INVOKE(2, "服务流转");
 
     /**
      * 编码
@@ -33,8 +32,8 @@ public enum AuditStatus {
         return name;
     }
 
-    public static AuditStatus getEnum(Integer value) {
-        for (AuditStatus e : AuditStatus.values()) {
+    public static StrategyTypes getEnum(Integer value) {
+        for (StrategyTypes e : StrategyTypes.values()) {
             if (value.equals(e.getCode())) {
                 return e;
             }
@@ -42,7 +41,7 @@ public enum AuditStatus {
         return null;
     }
 
-    AuditStatus(int code, String name) {
+    StrategyTypes(int code, String name) {
         this.code = code;
         this.name = name;
     }
