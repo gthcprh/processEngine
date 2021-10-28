@@ -16,4 +16,6 @@ public interface ApplyInfoService extends IService<ApplyInfo> {
     boolean updateStatus(Long applyId, int status);
 
     boolean updateNode(Long applyId, int nodeNum);
+
+    ApplyInfo getByResourceIdAndServerId(Long sourceId, Integer serverId);
 }

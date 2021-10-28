@@ -43,6 +43,12 @@ public class MsgLog implements Serializable {
     private String token;
 
     /**
+     * api_id
+     */
+    @TableField("api_id")
+    private Integer apiId;
+
+    /**
      * 所有者
      */
     @TableField("owner")
@@ -69,8 +75,8 @@ public class MsgLog implements Serializable {
     /**
      * 原因
      */
-    @TableField("reason")
-    private String reason;
+    @TableField("description")
+    private String description;
 
 
 }

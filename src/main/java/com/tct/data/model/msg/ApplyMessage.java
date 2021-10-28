@@ -24,7 +24,7 @@ public class ApplyMessage {
     private Integer strategyId;
 
     /**
-     * 用户请求表示，用于验证原系统
+     * 用户请求标识，用于验证原系统
      */
     private String token;
 
@@ -44,9 +44,14 @@ public class ApplyMessage {
     private String data;
 
     /**
-     * 用于反馈的apiid
+     * 用于反馈的apiId
      */
     private Integer feedbackApiId;
+
+    /**
+     * 是否为撤回
+     */
+    private boolean isRevoke;
 
     public ApplyInfo toApplyInfo() {
         ApplyInfo applyInfo = new ApplyInfo();

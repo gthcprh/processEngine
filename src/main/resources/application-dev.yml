@@ -32,22 +32,6 @@ mybatis-plus:
       table-prefix: tb_
       ##update-strategy: ignored
     banner: false
-
-task:
-  cron:
-    exp1: 0 0 2 * * ?
-    portal: 0 0 2 * * ?
-
-metadataUrl: http://172.51.216.106:49090/asset/searchTopicMeta/
-
-
-sso:
-  enable: false
-  jwtSecret: datatransfer-yyds
-  client:
-    name: assetsCatalogue
-    clientKey: 7gBZcbsC7kLIWCdELIl8nxcs
-    baseUrl: http://172.51.216.105:19096
-    tokenPath: /sso/auth/token
-    verifyPath: /sso/auth/verify?clientKey={clientKey}&accessToken={accessToken}
-    authUserByTokenPath: /sso/auth/authUserByToken?clientKey={clientKey}&accessToken={accessToken}
+queue:
+  apply: tct.apply
+  feedback: tct.feedback

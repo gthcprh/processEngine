@@ -23,7 +23,7 @@ import java.io.IOException;
  */
 @Slf4j
 @Component
-@RabbitListener(queues = "tct.apply")
+@RabbitListener(queues = "${queue.apply}")
 public class ApplyReceiver {
 
     @Resource
@@ -45,14 +45,18 @@ public class ApplyReceiver {
             log.error("消息校验失败，已丢弃");
             //丢弃这条消息
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-            msgLog.setReason(e.getMessage());
+            msgLog.setDescription(e.getMessage());
             msgLogService.save(msgLog);
             return;
         }
 
         msgLog.setToken(applyMessage.getToken());
         try {
-            messageProcessor.dealApply(applyMessage);
+            if(applyMessage.isRevoke()){
+                messageProcessor.dealRevoke(applyMessage);
+            }else{
+                messageProcessor.dealApply(applyMessage);
+            }
             //告诉服务器收到这条消息 已经被我消费了 可以在队列删掉 这样以后就不会再发了 否则消息服务器以为这条消息没处理掉 后续还会在发
             channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
             log.info("消息消费成功");
@@ -61,10 +65,10 @@ public class ApplyReceiver {
             //丢弃这条消息
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
             log.error(e.getMessage(), e);
-            msgLog.setReason(e.getMessage());
+            msgLog.setDescription(e.getMessage());
         }catch (PeException p){
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-            msgLog.setReason(p.getMessage());
+            msgLog.setDescription(p.getMessage());
         }
         msgLogService.save(msgLog);
     }

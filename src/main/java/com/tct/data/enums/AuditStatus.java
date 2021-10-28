@@ -13,7 +13,8 @@ public enum AuditStatus {
      */
     DISAGREE(0, "不同意"),
     AGREE(1, "同意"),
-    AUDITING(2, "审批中");
+    AUDITING(2, "审批中"),
+    REVOKE(3, "已撤回");
 
     /**
      * 编码

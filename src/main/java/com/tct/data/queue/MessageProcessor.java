@@ -46,6 +46,9 @@ public class MessageProcessor {
     @Resource
     AuditInfoService auditInfoService;
 
+    @Resource
+    MsgLogService msgLogService;
+
     /**
      * 处理申请队列消息
      *
@@ -71,6 +74,23 @@ public class MessageProcessor {
         nodeForward(auditMessage, applyMessage.getStrategyId(), 1);
     }
 
+    /**
+     * 处理申请队列消息
+     *
+     * @param applyMessage
+     */
+    public void dealRevoke(ApplyMessage applyMessage) {
+        ServerInfo serverInfo = serverInfoService.getByToken(applyMessage.getToken());
+        if (ObjectUtils.isEmpty(serverInfo)) {
+            throw new PeException("token校验失败");
+        }
+        ApplyInfo applyInfo=applyInfoService.getByResourceIdAndServerId(applyMessage.getSourceId(),serverInfo.getId());
+        if(ObjectUtils.isEmpty(applyInfo)){
+            log.error("找不到相关申请数据，sourceId：{}，系统名称：{}",applyMessage.getSourceId(),serverInfo.getOwner());
+            return;
+        }
+        applyInfoService.updateStatus(applyInfo.getId(),AuditStatus.REVOKE.getCode());
+    }
     /**
      * 申请类型节点转发
      *
@@ -145,16 +165,26 @@ public class MessageProcessor {
     public Result informNextNode(int apiId, String data) {
         ApiInfo apiInfo = apiInfoService.getById(apiId);
         RequestTypes requestTypes = RequestTypes.valueOf(apiInfo.getRequestType());
+        MsgLog msgLog=new MsgLog();
+        msgLog.setType(3);
+        msgLog.setData(data);
+        Result result;
         switch (requestTypes) {
             case POST:
-                Result postResult = HttpClientUtils.doPost(apiInfo.getRequestAddr(), null, data);
-                return postResult;
+                result= HttpClientUtils.doPost(apiInfo.getRequestAddr(), null, data);
+                break;
             case GET:
-                Result getResult = HttpClientUtils.doGet(apiInfo.getRequestAddr(), null);
-                return getResult;
+                result = HttpClientUtils.doGet(apiInfo.getRequestAddr(), null);
+                break;
             default:
                 return ResultGenerator.fail("不支持的请求类型");
         }
+        log.info("apiId:{},code:{},result:{}",apiId,result.getResultCode(),result.getMessage());
+        msgLog.setDescription(result.getMessage());
+        msgLog.setStatus(result.getResultCode()==200?1:2);
+        msgLog.setApiId(apiId);
+        msgLogService.save(msgLog);
+        return result;
     }
 
     /**
@@ -182,7 +212,7 @@ public class MessageProcessor {
         }
         AuditInfo auditInfo = auditInfoService.getById(feedbackMessage.getAuditId());
         if (!ObjectUtils.isEmpty(auditInfo) && auditInfo.getStatus() != 2) {
-            throw new PeException("未找到改审批信息或者该审批已经被处理");
+            throw new PeException("未找到该审批信息或者该审批已经被处理");
         }
         boolean result = auditInfoService.updateAuditInfo(feedbackMessage.getAuditId(), status, feedbackMessage.getAuditInfo());
         if (!result) {
@@ -262,6 +292,7 @@ public class MessageProcessor {
      */
     public void successFinish(ApplyInfo applyInfo) {
         applyInfoService.updateStatus(applyInfo.getId(), AuditStatus.AGREE.getCode());
+        applyInfo.setStatus(1);
         informNextNode(applyInfo.getFeedbackApiId(), JSONObject.toJSONString(applyInfo));
     }
 
@@ -272,6 +303,7 @@ public class MessageProcessor {
      */
     public void failFinish(ApplyInfo applyInfo) {
         applyInfoService.updateStatus(applyInfo.getId(), AuditStatus.DISAGREE.getCode());
+        applyInfo.setStatus(0);
         informNextNode(applyInfo.getFeedbackApiId(), JSONObject.toJSONString(applyInfo));
     }
 }

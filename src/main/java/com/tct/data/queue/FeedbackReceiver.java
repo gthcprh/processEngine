@@ -6,7 +6,6 @@ import com.tct.data.exception.PeException;
 import com.tct.data.model.MsgLog;
 import com.tct.data.model.msg.FeedbackMessage;
 import com.tct.data.service.MsgLogService;
-import com.tct.data.service.ServerInfoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitHandler;
@@ -24,7 +23,7 @@ import java.io.IOException;
  */
 @Slf4j
 @Component
-@RabbitListener(queues = "tct.feedback")
+@RabbitListener(queues = "${queue.feedback}")
 public class FeedbackReceiver {
 
     @Resource
@@ -35,7 +34,7 @@ public class FeedbackReceiver {
 
     @RabbitHandler
     public void process(String data, Channel channel, Message message) throws IOException {
-        MsgLog msgLog=new MsgLog();
+        MsgLog msgLog = new MsgLog();
         msgLog.setData(data);
         msgLog.setType(2);
         FeedbackMessage feedbackMessage;
@@ -45,7 +44,7 @@ public class FeedbackReceiver {
             log.error("消息校验失败，已丢弃");
             //丢弃这条消息
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-            msgLog.setReason(e.getMessage());
+            msgLog.setDescription(e.getMessage());
             msgLogService.save(msgLog);
             return;
         }
@@ -61,10 +60,10 @@ public class FeedbackReceiver {
             //丢弃这条消息
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
             log.error(e.getMessage(), e);
-            msgLog.setReason(e.getMessage());
-        }catch (PeException p){
+            msgLog.setDescription(e.getMessage());
+        } catch (PeException p) {
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
-            msgLog.setReason(p.getMessage());
+            msgLog.setDescription(p.getMessage());
         }
         msgLogService.save(msgLog);
     }

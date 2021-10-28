@@ -1,5 +1,6 @@
 package com.tct.data.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.tct.data.dao.ApplyInfoMapper;
@@ -30,5 +31,13 @@ public class ApplyInfoServiceImpl extends ServiceImpl<ApplyInfoMapper, ApplyInfo
         updateWrapper.lambda().set(ApplyInfo::getCurrentNode,nodeNum)
                 .eq(ApplyInfo::getId,applyId);
         return this.update(updateWrapper);
+    }
+
+    @Override
+    public ApplyInfo getByResourceIdAndServerId(Long sourceId, Integer serverId){
+        QueryWrapper<ApplyInfo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(ApplyInfo::getSourceId,sourceId)
+                .eq(ApplyInfo::getServerId,serverId);
+        return this.getOne(queryWrapper);
     }
 }
