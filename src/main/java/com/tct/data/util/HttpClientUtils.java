@@ -43,6 +43,10 @@ public class HttpClientUtils {
         return get(url, getHeader(header));
     }
 
+    public static Result doGet(String url) {
+        return get(url, null);
+    }
+
     /**
      * String转map
      *
@@ -78,7 +82,7 @@ public class HttpClientUtils {
             httpClient = HttpClientBuilder.create().build();
             // 创建Get请求
             HttpGet httpGet = new HttpGet(urlStr);
-            if (null != headerMap && !headerMap.isEmpty()) {
+            if (!CollectionUtils.isEmpty(headerMap)) {
                 for (Map.Entry<String, String> entry : headerMap.entrySet()) {
                     httpGet.addHeader(entry.getKey(), entry.getValue());
                 }
@@ -119,7 +123,7 @@ public class HttpClientUtils {
             // 创建Post请求
             HttpPost httpPost = new HttpPost(urlStr);
             //设置header
-            if (null != headerMap && !headerMap.isEmpty()) {
+            if (!CollectionUtils.isEmpty(headerMap)) {
                 for (Map.Entry<String, String> entry : headerMap.entrySet()) {
                     httpPost.addHeader(entry.getKey(), entry.getValue());
                 }

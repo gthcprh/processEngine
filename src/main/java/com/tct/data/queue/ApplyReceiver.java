@@ -2,6 +2,7 @@ package com.tct.data.queue;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
+import com.tct.data.enums.LogTypes;
 import com.tct.data.exception.PeException;
 import com.tct.data.model.MsgLog;
 import com.tct.data.model.msg.ApplyMessage;
@@ -37,10 +38,17 @@ public class ApplyReceiver {
         log.info("申请队列消息:" + data);
         MsgLog msgLog=new MsgLog();
         msgLog.setData(data);
-        msgLog.setType(1);
+        msgLog.setType(LogTypes.APPLY.getCode());
         ApplyMessage applyMessage;
         try {
             applyMessage = JSONObject.parseObject(data, ApplyMessage.class);
+            String token=applyMessage.getToken();
+            msgLog.setToken(token);
+            if(!ResourceCache.serverInfos().containsKey(token)){
+                msgLog.setDescription("token校验失败");
+                msgLogService.save(msgLog);
+                return ;
+            }
         } catch (Exception e) {
             log.error("消息校验失败，已丢弃");
             //丢弃这条消息
@@ -50,7 +58,6 @@ public class ApplyReceiver {
             return;
         }
 
-        msgLog.setToken(applyMessage.getToken());
         try {
             if(applyMessage.isRevoke()){
                 messageProcessor.dealRevoke(applyMessage);

@@ -53,4 +53,11 @@ public class AuditInfoServiceImpl extends ServiceImpl<AuditInfoMapper, AuditInfo
         List<Integer> list= auditInfos.stream().map(a->a.getStatus()).collect(Collectors.toList());
         return list;
     }
+
+    @Override
+    public List<AuditInfo> getByMsgId(Long msgId) {
+        QueryWrapper<AuditInfo> queryWrapper=new QueryWrapper<>();
+        queryWrapper.lambda().eq(AuditInfo::getApplyId,msgId);
+        return this.list(queryWrapper);
+    }
 }

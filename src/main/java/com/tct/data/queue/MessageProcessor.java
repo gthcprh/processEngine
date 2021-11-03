@@ -2,9 +2,7 @@ package com.tct.data.queue;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.tct.data.enums.AuditStatus;
-import com.tct.data.enums.AuditTypes;
-import com.tct.data.enums.RequestTypes;
+import com.tct.data.enums.*;
 import com.tct.data.exception.PeException;
 import com.tct.data.model.*;
 import com.tct.data.model.msg.ApplyMessage;
@@ -57,10 +55,7 @@ public class MessageProcessor {
     public void dealApply(ApplyMessage applyMessage) {
         log.info(applyMessage.getData());
         ApplyInfo applyInfo = applyMessage.toApplyInfo();
-        ServerInfo serverInfo = serverInfoService.getByToken(applyMessage.getToken());
-        if (ObjectUtils.isEmpty(serverInfo)) {
-            throw new PeException("token校验失败");
-        }
+        ServerInfo serverInfo = ResourceCache.serverInfos().get(applyMessage.getToken());
         applyInfo.setServerId(serverInfo.getId());
         applyInfo.setStatus(2);
         applyInfo.setCurrentNode(0);
@@ -80,10 +75,7 @@ public class MessageProcessor {
      * @param applyMessage
      */
     public void dealRevoke(ApplyMessage applyMessage) {
-        ServerInfo serverInfo = serverInfoService.getByToken(applyMessage.getToken());
-        if (ObjectUtils.isEmpty(serverInfo)) {
-            throw new PeException("token校验失败");
-        }
+        ServerInfo serverInfo = ResourceCache.serverInfos().get(applyMessage.getToken());
         ApplyInfo applyInfo=applyInfoService.getByResourceIdAndServerId(applyMessage.getSourceId(),serverInfo.getId());
         if(ObjectUtils.isEmpty(applyInfo)){
             log.error("找不到相关申请数据，sourceId：{}，系统名称：{}",applyMessage.getSourceId(),serverInfo.getOwner());
@@ -104,6 +96,10 @@ public class MessageProcessor {
         List<StrategyInfo> strategyInfoList = JSONArray.parseArray(info, StrategyInfo.class);
         StrategyInfo strategyInfo = strategyInfoList.get(currentNode - 1);
         AuditTypes auditTypes = AuditTypes.getEnum(strategyInfo.getType());
+        if(ObjectUtils.isEmpty(auditTypes)){
+            log.error("未知的节点审批类型，type：{}",strategyInfo.getType());
+            throw new PeException("未知的节点审批类型");
+        }
         message.setNodeTypeCode(auditTypes.getType());
         message.setNodeTypeName(auditTypes.getName());
         message.setCurrentNode(currentNode);
@@ -118,7 +114,7 @@ public class MessageProcessor {
                 auditInfo.setApplyId(message.getMsgId());
                 auditInfo.setCurrentNode(currentNode);
                 auditInfo.setApiId(apiId);
-                auditInfo.setStatus(2);
+                auditInfo.setStatus(AuditStatus.AUDITING.getCode());
                 auditInfoService.save(auditInfo);
 
                 message.setAuditId(auditInfo.getId());
@@ -139,7 +135,7 @@ public class MessageProcessor {
                     auditInfo1.setApplyId(message.getMsgId());
                     auditInfo1.setCurrentNode(currentNode);
                     auditInfo1.setApiId(apiId1);
-                    auditInfo1.setStatus(2);
+                    auditInfo1.setStatus(AuditStatus.AUDITING.getCode());
                     auditInfoService.save(auditInfo1);
 
                     message.setAuditId(auditInfo1.getId());
@@ -166,7 +162,7 @@ public class MessageProcessor {
         ApiInfo apiInfo = apiInfoService.getById(apiId);
         RequestTypes requestTypes = RequestTypes.valueOf(apiInfo.getRequestType());
         MsgLog msgLog=new MsgLog();
-        msgLog.setType(3);
+        msgLog.setType(LogTypes.INVOKE.getCode());
         msgLog.setData(data);
         Result result;
         switch (requestTypes) {
@@ -181,7 +177,7 @@ public class MessageProcessor {
         }
         log.info("apiId:{},code:{},result:{}",apiId,result.getResultCode(),result.getMessage());
         msgLog.setDescription(result.getMessage());
-        msgLog.setStatus(result.getResultCode()==200?1:2);
+        msgLog.setStatus(result.getResultCode()==200? LogStatus.SUCCESS.getCode():LogStatus.FAIL.getCode());
         msgLog.setApiId(apiId);
         msgLogService.save(msgLog);
         return result;
@@ -195,23 +191,19 @@ public class MessageProcessor {
      */
     public void dealAuditFeedback(FeedbackMessage feedbackMessage) {
         //校验当前节点与申请节点是否一致，审批id和节点是否匹配，审批状态是否已经批过
-        ServerInfo serverInfo = serverInfoService.getByToken(feedbackMessage.getToken());
-        if (ObjectUtils.isEmpty(serverInfo)) {
-            throw new PeException("token校验失败");
-        }
         int status = feedbackMessage.getAuditResult();
         ApplyInfo applyInfo = applyInfoService.getById(feedbackMessage.getMsgId());
         if (ObjectUtils.isEmpty(applyInfo)) {
             throw new PeException("申请id不存在");
         }
-        if (applyInfo.getStatus()!=2) {
+        if (applyInfo.getStatus()!=AuditStatus.AUDITING.getCode()) {
             throw new PeException("该申请流程已结束");
         }
         if (!applyInfo.getCurrentNode().equals(feedbackMessage.getCurrentNode())) {
             throw new PeException("审批消息节点与当前进度节点不一致");
         }
         AuditInfo auditInfo = auditInfoService.getById(feedbackMessage.getAuditId());
-        if (!ObjectUtils.isEmpty(auditInfo) && auditInfo.getStatus() != 2) {
+        if (!ObjectUtils.isEmpty(auditInfo) && auditInfo.getStatus() != AuditStatus.AUDITING.getCode()) {
             throw new PeException("未找到该审批信息或者该审批已经被处理");
         }
         boolean result = auditInfoService.updateAuditInfo(feedbackMessage.getAuditId(), status, feedbackMessage.getAuditInfo());
@@ -223,38 +215,42 @@ public class MessageProcessor {
         //能否继续流转
         boolean strategyInfoStatus = strategyInfo.isStatus();
         AuditTypes auditTypes = AuditTypes.getEnum(strategyInfo.getType());
+        if(ObjectUtils.isEmpty(auditTypes)){
+            log.error("未知的节点审批类型，type：{}",strategyInfo.getType());
+            throw new PeException("未知的节点审批类型");
+        }
         switch (auditTypes) {
             case SIMPLE:
-                if (status == 1) {
-                    //todo 开始下一节点
+                if (status == AuditStatus.AGREE.getCode()) {
+                    //开始下一节点
                     doNextNode(applyInfo, strategyInfoStatus);
                 } else {
-                    //todo 失败，流程结束
+                    //失败，流程结束
                     failFinish(applyInfo);
                 }
                 break;
             case AND_AUDIT:
-                if (status == 0) {
-                    //todo 失败，流程结束
+                if (status == AuditStatus.DISAGREE.getCode()) {
+                    //失败，流程结束
                     failFinish(applyInfo);
                     return;
                 }
                 List<Integer> andList = auditInfoService.getOtherAuditStatus(applyInfo.getId(), applyInfo.getCurrentNode());
-                if (!andList.contains(2)) {
-                    //todo 开始下一节点
+                if (!andList.contains(AuditStatus.AUDITING.getCode())) {
+                    //开始下一节点
                     doNextNode(applyInfo, strategyInfoStatus);
                     return;
                 }
                 break;
             case OR_AUDIT:
-                if (status == 1) {
-                    //todo 开始下一流程
+                if (status == AuditStatus.AGREE.getCode()) {
+                    //开始下一流程
                     doNextNode(applyInfo, strategyInfoStatus);
                     return;
                 }
                 List<Integer> orList = auditInfoService.getOtherAuditStatus(applyInfo.getId(), applyInfo.getCurrentNode());
-                if (!orList.contains(2)) {
-                    //todo 流程结束，失败
+                if (!orList.contains(AuditStatus.AUDITING.getCode())) {
+                    //流程结束，失败
                     failFinish(applyInfo);
                     return;
                 }

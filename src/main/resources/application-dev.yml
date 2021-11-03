@@ -33,5 +33,7 @@ mybatis-plus:
       ##update-strategy: ignored
     banner: false
 queue:
-  apply: tct.apply
-  feedback: tct.feedback
+#  apply: tct.apply
+#  feedback: tct.feedback
+  apply: apply
+  feedback: feedback

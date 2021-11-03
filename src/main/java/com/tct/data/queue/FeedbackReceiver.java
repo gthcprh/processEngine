@@ -2,6 +2,7 @@ package com.tct.data.queue;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
+import com.tct.data.enums.LogTypes;
 import com.tct.data.exception.PeException;
 import com.tct.data.model.MsgLog;
 import com.tct.data.model.msg.FeedbackMessage;
@@ -36,10 +37,17 @@ public class FeedbackReceiver {
     public void process(String data, Channel channel, Message message) throws IOException {
         MsgLog msgLog = new MsgLog();
         msgLog.setData(data);
-        msgLog.setType(2);
+        msgLog.setType(LogTypes.AUDIT.getCode());
         FeedbackMessage feedbackMessage;
         try {
             feedbackMessage = JSONObject.parseObject(data, FeedbackMessage.class);
+            String token=feedbackMessage.getToken();
+            msgLog.setToken(token);
+            if(!ResourceCache.serverInfos().containsKey(token)){
+                msgLog.setDescription("token校验失败");
+                msgLogService.save(msgLog);
+                return ;
+            }
         } catch (Exception e) {
             log.error("消息校验失败，已丢弃");
             //丢弃这条消息
@@ -49,7 +57,6 @@ public class FeedbackReceiver {
             return;
         }
 
-        msgLog.setToken(feedbackMessage.getToken());
         try {
             messageProcessor.dealAuditFeedback(feedbackMessage);
             //告诉服务器收到这条消息 已经被我消费了 可以在队列删掉 这样以后就不会再发了 否则消息服务器以为这条消息没处理掉 后续还会在发

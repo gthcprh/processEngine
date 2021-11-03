@@ -33,4 +33,6 @@ public interface AuditInfoService extends IService<AuditInfo> {
     List<AuditInfo> getOtherAuditInfo(Long applyId, int node);
 
     List<Integer> getOtherAuditStatus(Long applyId, int node);
+
+    List<AuditInfo> getByMsgId(Long msgId);
 }

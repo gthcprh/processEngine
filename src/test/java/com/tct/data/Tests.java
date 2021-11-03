@@ -1,19 +1,18 @@
 package com.tct.data;
 
-import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.tct.data.model.ApplyInfo;
-import com.tct.data.model.AuditorInfo;
-import com.tct.data.model.msg.ApplyMessage;
-import com.tct.data.model.msg.FeedbackMessage;
+import com.alibaba.fastjson.JSONArray;
+import com.sun.javaws.progress.Progress;
+import com.tct.data.model.StrategyConfig;
+import com.tct.data.model.StrategyInfo;
 import com.tct.data.queue.MessageProcessor;
+import com.tct.data.queue.ResourceCache;
 import com.tct.data.service.ApplyInfoService;
+import com.tct.data.service.StrategyConfigService;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @Author: Hannibal
@@ -30,16 +29,18 @@ public class Tests {
     @Resource
     ApplyInfoService applyInfoService;
 
-    @Test
-    public void getCagalogue() {
-        ApplyInfo applyInfo=applyInfoService.getById(64);
-        System.out.println("直接输出："+applyInfo);
-        System.out.println("toString直接输出："+applyInfo.toString());
-        System.out.println("toJsonString直接输出："+ JSONObject.toJSONString(applyInfo));
+    @Resource
+    StrategyConfigService strategyConfigService;
 
-        LocalDateTime localDateTime=LocalDateTime.now();
-        System.out.println(localDateTime);
+    @Test
+    public void getCatalogue() {
+        StrategyConfig strategyConfig = strategyConfigService.getById(7);
+        String info = strategyConfig.getStrategyDetail();
+        List<StrategyInfo> strategyInfoList = JSONArray.parseArray(info, StrategyInfo.class);
+        System.out.println(strategyInfoList);
     }
 
+    public static void main(String[] args) {
 
+    }
 }

@@ -2,6 +2,7 @@ package com.tct.data.service;
 
 import com.tct.data.model.ApplyInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tct.data.util.Result;
 
 /**
  * <p>
@@ -18,4 +19,8 @@ public interface ApplyInfoService extends IService<ApplyInfo> {
     boolean updateNode(Long applyId, int nodeNum);
 
     ApplyInfo getByResourceIdAndServerId(Long sourceId, Integer serverId);
+
+    Result progress(Long msgId);
+
+    ApplyInfo getMsgId(Long applyId, Integer serverId);
 }

@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
+import java.util.List;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -41,7 +43,7 @@ public class StrategyConfig implements Serializable {
      * 策略类型
      */
     @TableField("strategy_type")
-    private Integer strategyType;
+    private Integer strategyType=1;
 
     /**
      * 策略详情（json数组，一个对象一个节点）
@@ -49,5 +51,12 @@ public class StrategyConfig implements Serializable {
     @TableField("strategy_detail")
     private String strategyDetail;
 
+    /**
+     * 描述
+     */
+    @TableField("description")
+    private String description;
 
+    @TableField(exist = false)
+    private List<StrategyInfo> strategyInfos;
 }
