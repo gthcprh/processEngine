@@ -33,6 +33,12 @@ public class ApiInfo implements Serializable {
     private Long id;
 
     /**
+     * 名称
+     */
+    @TableField("api_name")
+    private String apiName;
+
+    /**
      * 请求类型
      */
     @TableField("request_type")
@@ -43,6 +49,12 @@ public class ApiInfo implements Serializable {
      */
     @TableField("service_id")
     private Integer serviceId;
+
+    /**
+     * 类型
+     */
+    @TableField("type")
+    private Integer type;
 
     /**
      * 请求地址

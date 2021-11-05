@@ -3,6 +3,7 @@ package com.tct.data.service;
 import com.tct.data.model.StrategyConfig;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.tct.data.model.StrategyInfo;
+import com.tct.data.model.StrategyInfoVo;
 import com.tct.data.util.RequestBean;
 import com.tct.data.util.Result;
 
@@ -30,7 +31,7 @@ public interface StrategyConfigService extends IService<StrategyConfig> {
      * @param node
      * @return
      */
-    StrategyInfo getStrategyInfo(int strategyConfigId, int node);
+    StrategyInfoVo getStrategyInfo(int strategyConfigId, int node);
 
     /**
      * 保存策略信息

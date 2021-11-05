@@ -211,12 +211,12 @@ public class MessageProcessor {
             throw new PeException("审批信息修改失败");
         }
         //判断下一步操作
-        StrategyInfo strategyInfo = strategyConfigService.getStrategyInfo(applyInfo.getStrategyId(), applyInfo.getCurrentNode());
+        StrategyInfoVo strategyInfoVo = strategyConfigService.getStrategyInfo(applyInfo.getStrategyId(), applyInfo.getCurrentNode());
         //能否继续流转
-        boolean strategyInfoStatus = strategyInfo.isStatus();
-        AuditTypes auditTypes = AuditTypes.getEnum(strategyInfo.getType());
+        boolean strategyInfoStatus = strategyInfoVo.isStatus();
+        AuditTypes auditTypes = AuditTypes.getEnum(strategyInfoVo.getType());
         if(ObjectUtils.isEmpty(auditTypes)){
-            log.error("未知的节点审批类型，type：{}",strategyInfo.getType());
+            log.error("未知的节点审批类型，type：{}",strategyInfoVo.getType());
             throw new PeException("未知的节点审批类型");
         }
         switch (auditTypes) {

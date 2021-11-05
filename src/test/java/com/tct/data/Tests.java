@@ -1,11 +1,9 @@
 package com.tct.data;
 
 import com.alibaba.fastjson.JSONArray;
-import com.sun.javaws.progress.Progress;
 import com.tct.data.model.StrategyConfig;
 import com.tct.data.model.StrategyInfo;
 import com.tct.data.queue.MessageProcessor;
-import com.tct.data.queue.ResourceCache;
 import com.tct.data.service.ApplyInfoService;
 import com.tct.data.service.StrategyConfigService;
 import org.junit.jupiter.api.Test;
@@ -39,6 +37,12 @@ public class Tests {
         List<StrategyInfo> strategyInfoList = JSONArray.parseArray(info, StrategyInfo.class);
         System.out.println(strategyInfoList);
     }
+
+    @Test
+    public void test() {
+        System.out.println(strategyConfigService.getStrategyInfo(1,1));
+    }
+
 
     public static void main(String[] args) {
 

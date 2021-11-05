@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
@@ -22,7 +23,7 @@ import javax.annotation.Resource;
  * @author hannibal
  * @since 2021-10-18
  */
-@Controller
+@RestController
 @RequestMapping("/apiInfo")
 public class ApiInfoController {
 
@@ -31,11 +32,11 @@ public class ApiInfoController {
 
     @GetMapping("list")
     public Result list(Integer serverId){
-        if(ObjectUtils.isEmpty(serverId)){
-            return ResultGenerator.success(apiInfoService.list());
-        }
         QueryWrapper<ApiInfo> queryWrapper=new QueryWrapper<>();
-        queryWrapper.lambda().eq(ApiInfo::getServiceId,serverId);
+        queryWrapper.lambda().eq(ApiInfo::getType,1);
+        if(!ObjectUtils.isEmpty(serverId)){
+            queryWrapper.lambda().eq(ApiInfo::getServiceId,serverId);
+        }
         return ResultGenerator.success(apiInfoService.list(queryWrapper));
     }
 

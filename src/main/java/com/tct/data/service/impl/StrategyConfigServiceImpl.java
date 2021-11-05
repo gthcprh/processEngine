@@ -12,6 +12,7 @@ import com.tct.data.model.ApplyInfo;
 import com.tct.data.model.StrategyConfig;
 import com.tct.data.dao.StrategyConfigMapper;
 import com.tct.data.model.StrategyInfo;
+import com.tct.data.model.StrategyInfoVo;
 import com.tct.data.service.ApplyInfoService;
 import com.tct.data.service.StrategyConfigService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -49,13 +50,13 @@ public class StrategyConfigServiceImpl extends ServiceImpl<StrategyConfigMapper,
     }
 
     @Override
-    public StrategyInfo getStrategyInfo(int strategyConfigId, int node){
+    public StrategyInfoVo getStrategyInfo(int strategyConfigId, int node){
         StrategyConfig strategyConfig=this.getById(strategyConfigId);
         String info = strategyConfig.getStrategyDetail();
         JSONArray jsonArray = JSONArray.parseArray(info);
-        StrategyInfo strategyInfo = jsonArray.getObject(node - 1, StrategyInfo.class);
-        strategyInfo.setStatus(jsonArray.size()!=node);
-        return strategyInfo;
+        StrategyInfoVo strategyInfoVo = jsonArray.getObject(node - 1, StrategyInfoVo.class);
+        strategyInfoVo.setStatus(jsonArray.size()!=node);
+        return strategyInfoVo;
     }
 
     @Override

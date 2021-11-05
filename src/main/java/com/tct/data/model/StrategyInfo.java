@@ -1,5 +1,6 @@
 package com.tct.data.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.List;
@@ -15,14 +16,12 @@ public class StrategyInfo {
 
     private Integer type;
 
+    private String targetName;
+
     private List<Integer> targetServer;
 
     private List<AuditorInfo> info;
 
     private String data;
 
-    /**
-     * 能否继续流转
-     */
-    private boolean status;
 }
