@@ -47,6 +47,8 @@ public class ApplyReceiver {
             if(!ResourceCache.serverInfos().containsKey(token)){
                 msgLog.setDescription("token校验失败");
                 msgLogService.save(msgLog);
+                log.error("token校验失败，已丢弃");
+                channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
                 return ;
             }
         } catch (Exception e) {

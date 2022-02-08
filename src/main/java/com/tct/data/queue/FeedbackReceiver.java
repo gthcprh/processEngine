@@ -45,6 +45,8 @@ public class FeedbackReceiver {
             msgLog.setToken(token);
             if(!ResourceCache.serverInfos().containsKey(token)){
                 msgLog.setDescription("token校验失败");
+                log.error("token校验失败，已丢弃");
+                channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
                 msgLogService.save(msgLog);
                 return ;
             }
